@@ -17,3 +17,8 @@ anyhow = "1"
 nahpu-embed-core = { path = "crates/nahpu-embed-core" }
 nahpu-embed-burn = { path = "crates/nahpu-embed-burn" }
 burn = { version = "0.21", default-features = false, features = ["std"] }
+
+# Unoptimised tensor kernels make debug runs unusably slow (47x here), while our
+# own crates stay debuggable.
+[profile.dev.package."*"]
+opt-level = 3

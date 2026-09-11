@@ -54,18 +54,14 @@ cd rust && NAHPU_MODEL_DIR=/Volumes/work/models cargo build
 Not an error. The build skips model codegen when weights are missing so a fresh
 clone still compiles. Run `scripts/fetch-model.sh` and rebuild.
 
-**Changed `NAHPU_MODEL_DIR` and the model is still missing**
-
-The build script reads it at build time. Cargo does not know the variable
-changed, so force it:
-
-```sh
-cargo build -p nahpu-embed-burn --offline 2>/dev/null; touch crates/nahpu-embed-burn/build.rs
-cargo build
-```
-
 **GPU feature does not build**
 
 Check you picked the one for your platform: `metal` on macOS, `vulkan` on Linux
 and Windows. `wgpu` picks a backend at runtime and is the fallback when you are
 not sure.
+
+**Debug runs feel far too slow**
+
+They should not any more. Dependencies build optimised even in debug
+(`[profile.dev.package."*"]` in `rust/Cargo.toml`) because unoptimised tensor
+kernels ran 47x slower here. If you removed that, put it back.

@@ -7,6 +7,7 @@ const BASELINE_MODEL: &str = "all-MiniLM-L6-v2.onnx";
 
 fn main() {
     declare_has_model_cfg();
+    rebuild_when_model_dir_changes();
 
     let model = models_dir().join(BASELINE_MODEL);
     rebuild_when_model_changes(&model);
@@ -56,6 +57,10 @@ fn declare_has_model_cfg() {
 
 fn enable_has_model_cfg() {
     println!("cargo::rustc-cfg=has_model");
+}
+
+fn rebuild_when_model_dir_changes() {
+    println!("cargo::rerun-if-env-changed=NAHPU_MODEL_DIR");
 }
 
 fn rebuild_when_model_changes(model: &Path) {
