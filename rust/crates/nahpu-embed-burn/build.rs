@@ -2,6 +2,7 @@ use std::path::{Path, PathBuf};
 
 use burn_onnx::{LoadStrategy, ModelGen};
 
+const BASELINE_STEM: &str = "all-MiniLM-L6-v2";
 const BASELINE_MODEL: &str = "all-MiniLM-L6-v2.onnx";
 
 fn main() {
@@ -16,7 +17,21 @@ fn main() {
     }
 
     generate_model_without_baked_paths(&model);
+    export_baseline_asset_paths(&model);
     enable_has_model_cfg();
+}
+
+fn export_baseline_asset_paths(model: &Path) {
+    let generated = PathBuf::from(std::env::var("OUT_DIR").expect("cargo sets OUT_DIR"))
+        .join("model")
+        .join(format!("{BASELINE_STEM}.bpk"));
+    println!("cargo::rustc-env=BASELINE_WEIGHTS={}", generated.display());
+
+    let tokenizer = model.with_file_name(format!("{BASELINE_STEM}.tokenizer.json"));
+    println!(
+        "cargo::rustc-env=BASELINE_TOKENIZER={}",
+        tokenizer.display()
+    );
 }
 
 fn generate_model_without_baked_paths(model: &Path) {

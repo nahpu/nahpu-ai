@@ -212,7 +212,8 @@ __marimo__/
 /target
 **/*.rs.bk
 
-# Large model assets -- fetch locally, never commit
+# Fetched model assets -- never commit
+/models/
 *.safetensors
 *.onnx
 *.gguf

@@ -5,9 +5,10 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DEST_DIR="${NAHPU_MODEL_DIR:-$ROOT/models}"
 
-# name|url|sha256 ("-" until pinned)
+# name|url|sha256 — url pins an HF revision, not main, so the hash stays valid
 MODELS="
-all-MiniLM-L6-v2.onnx|https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/onnx/model.onnx|-
+all-MiniLM-L6-v2.onnx|https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/onnx/model.onnx|6fd5d72fe4589f189f8ebc006442dbb529bb7ce38f8082112682524616046452
+all-MiniLM-L6-v2.tokenizer.json|https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/tokenizer.json|be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037
 "
 
 print_usage() {
