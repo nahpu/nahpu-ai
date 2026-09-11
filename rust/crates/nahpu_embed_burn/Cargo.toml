@@ -1,5 +1,5 @@
 [package]
-name = "nahpu-embed-burn"
+name = "nahpu_embed_burn"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -14,7 +14,7 @@ metal = ["burn/metal"]
 vulkan = ["burn/vulkan"]
 
 [dependencies]
-nahpu-embed-core.workspace = true
+nahpu_embed_core.workspace = true
 anyhow.workspace = true
 burn.workspace = true
 burn-store = "0.21"

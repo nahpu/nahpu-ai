@@ -7,6 +7,6 @@ repository.workspace = true
 publish = false
 
 [dependencies]
-nahpu-embed-core.workspace = true
-nahpu-embed-burn.workspace = true
+nahpu_embed_core.workspace = true
+nahpu_embed_burn.workspace = true
 anyhow.workspace = true

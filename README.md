@@ -43,11 +43,11 @@ several-hundred-megabyte download.
 
 | Crate | What |
 |---|---|
-| `nahpu-embed-core` | Traits and helpers. No framework dependency. |
-| `nahpu-embed-burn` | Burn engines. Backend picked by cargo feature. |
+| `nahpu_embed_core` | Traits and helpers. No framework dependency. |
+| `nahpu_embed_burn` | Burn engines. Backend picked by cargo feature. |
 | `cli` | Scratch binary for trying things by hand. |
 
-`nahpu-embed-core` is the extension point. Add an engine by implementing
+`nahpu_embed_core` is the extension point. Add an engine by implementing
 `TextEmbedder` or `ImageEmbedder`; nothing else has to change.
 
 ## Backends

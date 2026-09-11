@@ -1147,8 +1147,8 @@ name = "cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "nahpu-embed-burn",
- "nahpu-embed-core",
+ "nahpu_embed_burn",
+ "nahpu_embed_core",
 ]
 
 [[package]]
@@ -3714,19 +3714,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "nahpu-embed-burn"
+name = "nahpu_embed_burn"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "burn",
  "burn-onnx",
  "burn-store",
- "nahpu-embed-core",
+ "nahpu_embed_core",
  "tokenizers 0.21.4",
 ]
 
 [[package]]
-name = "nahpu-embed-core"
+name = "nahpu_embed_core"
 version = "0.1.0"
 dependencies = [
  "anyhow",
