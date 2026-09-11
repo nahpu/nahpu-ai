@@ -7,11 +7,8 @@ repository.workspace = true
 description = "Burn-backed embedding engines for NAHPU AI experiments."
 
 [features]
-# Pure-Rust CPU backend. Default because it needs no system library and no
-# per-OS build flags, which is the portability the framework choice rests on.
 default = ["flex"]
 flex = ["burn/flex"]
-# GPU backends stay opt-in so a plain `cargo build` stays light.
 wgpu = ["burn/wgpu"]
 metal = ["burn/metal"]
 vulkan = ["burn/vulkan"]
