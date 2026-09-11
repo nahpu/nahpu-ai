@@ -9,8 +9,9 @@ fn main() {
     declare_has_model_cfg();
     rebuild_when_model_dir_changes();
 
-    let model = models_dir().join(BASELINE_MODEL);
-    rebuild_when_model_changes(&model);
+    let models = models_dir();
+    let model = models.join(BASELINE_MODEL);
+    rebuild_when_models_appear(&models, &model);
 
     if !model.exists() {
         warn_model_missing(&model);
@@ -63,7 +64,12 @@ fn rebuild_when_model_dir_changes() {
     println!("cargo::rerun-if-env-changed=NAHPU_MODEL_DIR");
 }
 
-fn rebuild_when_model_changes(model: &Path) {
+/// Watches the directory as well as the file: cargo cannot reliably notice a
+/// path that does not exist yet, and the first fetch creates both.
+fn rebuild_when_models_appear(models: &Path, model: &Path) {
+    let watched = models.parent().unwrap_or(models);
+    println!("cargo::rerun-if-changed={}", watched.display());
+    println!("cargo::rerun-if-changed={}", models.display());
     println!("cargo::rerun-if-changed={}", model.display());
 }
 
