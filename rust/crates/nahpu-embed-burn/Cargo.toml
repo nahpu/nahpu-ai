@@ -1,0 +1,24 @@
+[package]
+name = "nahpu-embed-burn"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Burn-backed embedding engines for NAHPU AI experiments."
+
+[features]
+default = ["flex"]
+flex = ["burn/flex"]
+wgpu = ["burn/wgpu"]
+metal = ["burn/metal"]
+vulkan = ["burn/vulkan"]
+
+[dependencies]
+nahpu-embed-core.workspace = true
+anyhow.workspace = true
+burn.workspace = true
+burn-store = "0.21"
+tokenizers = "0.21"
+
+[build-dependencies]
+burn-onnx = "0.21"
