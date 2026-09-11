@@ -1,0 +1,10 @@
+[package]
+name = "nahpu-embed-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Framework-free embedding abstractions shared by NAHPU AI experiments."
+
+[dependencies]
+anyhow.workspace = true

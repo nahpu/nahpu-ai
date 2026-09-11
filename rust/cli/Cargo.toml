@@ -1,0 +1,12 @@
+[package]
+name = "cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+nahpu-embed-core.workspace = true
+nahpu-embed-burn.workspace = true
+anyhow.workspace = true
