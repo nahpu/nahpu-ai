@@ -4,9 +4,11 @@ use anyhow::{Context, Result};
 use burn::prelude::*;
 use burn::tensor::Bytes;
 
+mod clip;
 mod jina;
 mod minilm;
 
+pub use clip::{load_clip, ClipModel, CLIP_MODEL_NAMES};
 pub use jina::{load_jina_text, load_jina_vision, JINA_LOGIT_SCALE};
 pub use minilm::load_minilm;
 

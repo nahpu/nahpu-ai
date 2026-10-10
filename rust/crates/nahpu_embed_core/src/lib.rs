@@ -1,6 +1,7 @@
 use anyhow::Result;
 
 pub mod preprocess;
+pub mod zero_shot;
 
 pub use preprocess::PreprocessConfig;
 

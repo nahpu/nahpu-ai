@@ -1,38 +1,114 @@
-use anyhow::Result;
+use std::path::PathBuf;
+use std::time::Instant;
 
-use nahpu_embed_burn::{load_minilm, BACKEND_NAME, HAS_MINILM};
-use nahpu_embed_core::{cosine_similarity, TextRole};
+use anyhow::{Context, Result};
+use clap::{Args, Parser, Subcommand, ValueEnum};
+
+use nahpu_embed_burn::{load_clip, BACKEND_NAME, CLIP_MODEL_NAMES, HAS_JINA, HAS_MINILM};
+use nahpu_embed_core::zero_shot::{read_labels_csv, LabelWording, PromptSet, ZeroShotClassifier};
+
+#[derive(Parser)]
+#[command(about = "Try NAHPU embedding models by hand")]
+struct Cli {
+    #[command(subcommand)]
+    command: Option<Command>,
+}
+
+#[derive(Subcommand)]
+enum Command {
+    /// Rank labels for each photo, best first.
+    Classify {
+        #[command(flatten)]
+        setup: ClassifierSetup,
+        #[arg(long, default_value_t = 5)]
+        top: usize,
+        #[arg(required = true)]
+        photos: Vec<PathBuf>,
+    },
+}
+
+#[derive(Args)]
+struct ClassifierSetup {
+    #[arg(long, default_value = "jina-clip-v1")]
+    model: String,
+    /// CSV with header class,common_name,taxon_name.
+    #[arg(long)]
+    labels: PathBuf,
+    #[arg(long, value_enum, default_value_t = Prompts::Ensemble)]
+    prompts: Prompts,
+    #[arg(long, value_enum, default_value_t = Wording::Common)]
+    wording: Wording,
+}
+
+#[derive(Clone, Copy, ValueEnum)]
+enum Prompts {
+    Bare,
+    Photo,
+    Specimen,
+    Ensemble,
+}
+
+#[derive(Clone, Copy, ValueEnum)]
+enum Wording {
+    Common,
+    Taxon,
+    Both,
+}
+
+impl From<Prompts> for PromptSet {
+    fn from(prompts: Prompts) -> Self {
+        match prompts {
+            Prompts::Bare => PromptSet::Bare,
+            Prompts::Photo => PromptSet::Photo,
+            Prompts::Specimen => PromptSet::Specimen,
+            Prompts::Ensemble => PromptSet::Ensemble,
+        }
+    }
+}
+
+impl From<Wording> for LabelWording {
+    fn from(wording: Wording) -> Self {
+        match wording {
+            Wording::Common => LabelWording::Common,
+            Wording::Taxon => LabelWording::Taxon,
+            Wording::Both => LabelWording::Both,
+        }
+    }
+}
 
 fn main() -> Result<()> {
-    println!("backend:   {BACKEND_NAME}");
-
-    if !HAS_MINILM {
-        println!("model:     none — run scripts/fetch-model.sh, then rebuild");
-        return Ok(());
+    match Cli::parse().command {
+        None => {
+            report_what_is_available();
+            Ok(())
+        }
+        Some(Command::Classify { setup, top, photos }) => classify(&setup, top, &photos),
     }
-    println!("model:     compiled in");
-
-    embed_sample_sentences()
 }
 
-fn embed_sample_sentences() -> Result<()> {
-    let embedder = load_minilm()?;
+fn report_what_is_available() {
+    let present = |yes: bool| if yes { "compiled in" } else { "missing — run scripts/fetch-model.sh, then rebuild" };
+    println!("backend:       {BACKEND_NAME}");
+    println!("all-MiniLM-L6-v2: {}", present(HAS_MINILM));
+    println!("jina-clip-v1:  {}", present(HAS_JINA));
+    println!("clip models:   {}", CLIP_MODEL_NAMES.join(", "));
+}
 
-    let bird = embedder.embed(
-        "A small brown bird perched on a branch.",
-        TextRole::Document,
-    )?;
-    let sparrow = embedder.embed("A tiny sparrow sitting in a tree.", TextRole::Document)?;
-    let engine = embedder.embed("Diesel engine maintenance schedule.", TextRole::Document)?;
+fn classify(setup: &ClassifierSetup, top: usize, photos: &[PathBuf]) -> Result<()> {
+    let model = load_clip(&setup.model)?;
+    let labels = read_labels_csv(&std::fs::read_to_string(&setup.labels).context("could not read the labels file")?)?;
+    let classifier =
+        ZeroShotClassifier::new(model.text.as_ref(), &labels, setup.wording.into(), setup.prompts.into(), model.logit_scale)?;
 
-    println!();
-    println!("dimensions:      {}", bird.len());
-    println!("unit length:     {:.6}", magnitude(&bird));
-    println!("bird ~ sparrow:  {:.4}", cosine_similarity(&bird, &sparrow));
-    println!("bird ~ engine:   {:.4}", cosine_similarity(&bird, &engine));
+    for photo in photos {
+        let started = Instant::now();
+        let encoded = std::fs::read(photo).with_context(|| format!("could not read {}", photo.display()))?;
+        let ranked = classifier.rank(&model.vision.embed_image(&encoded)?);
+
+        println!("{} ({} ms)", photo.display(), started.elapsed().as_millis());
+        for prediction in ranked.iter().take(top) {
+            println!("  {:<16} cosine {:.4}  p {:.3}", prediction.class, prediction.cosine, prediction.probability);
+        }
+    }
     Ok(())
-}
-
-fn magnitude(v: &[f32]) -> f32 {
-    v.iter().map(|x| x * x).sum::<f32>().sqrt()
 }

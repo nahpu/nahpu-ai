@@ -39,6 +39,16 @@ cd rust && cargo run --bin cli
 The build works without models on purpose, so a fresh clone compiles without a
 several-hundred-megabyte download.
 
+Rank labels for a photo with zero-shot classification (jina-clip-v1):
+
+```sh
+cd rust && cargo run --release --bin cli -- classify \
+    --labels ../eval/neon-labels.csv ../models/fixture-neon-shrew.jpg
+```
+
+`--prompts` picks the prompt templates and `--wording` picks common names, taxon
+names or both. Add `--features metal` on a Mac for about 25x faster images.
+
 ## Crates
 
 | Crate | What |
