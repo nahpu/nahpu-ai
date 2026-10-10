@@ -46,8 +46,17 @@ cd rust && cargo run --release --bin cli -- classify \
     --labels ../eval/neon-labels.csv ../models/fixture-neon-shrew.jpg
 ```
 
+For BioCLIP, export it once (it has no official ONNX), then rebuild and pass
+`--model bioclip`:
+
+```sh
+python3 -m venv scripts/bioclip/.venv
+scripts/bioclip/.venv/bin/pip install -r scripts/bioclip/requirements.txt
+scripts/bioclip/.venv/bin/python -I scripts/bioclip/export_onnx.py
+```
+
 `--prompts` picks the prompt templates and `--wording` picks common names, taxon
-names or both. Add `--features metal` on a Mac for about 25x faster images.
+names or both. Add `--features metal` on a Mac for about 20x faster images.
 
 ## Crates
 

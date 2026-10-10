@@ -8,7 +8,7 @@ struct OnnxModel {
     weights_env: &'static str,
 }
 
-const MODELS: [OnnxModel; 3] = [
+const MODELS: [OnnxModel; 5] = [
     OnnxModel {
         stem: "all-MiniLM-L6-v2",
         cfg: "has_minilm",
@@ -23,6 +23,16 @@ const MODELS: [OnnxModel; 3] = [
         stem: "jina-clip-v1-vision",
         cfg: "has_jina_vision",
         weights_env: "JINA_VISION_WEIGHTS",
+    },
+    OnnxModel {
+        stem: "bioclip-text",
+        cfg: "has_bioclip_text",
+        weights_env: "BIOCLIP_TEXT_WEIGHTS",
+    },
+    OnnxModel {
+        stem: "bioclip-vision",
+        cfg: "has_bioclip_vision",
+        weights_env: "BIOCLIP_VISION_WEIGHTS",
     },
 ];
 

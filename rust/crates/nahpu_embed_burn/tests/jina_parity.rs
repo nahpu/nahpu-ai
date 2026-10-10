@@ -1,4 +1,7 @@
-use nahpu_embed_burn::{load_jina_text, load_jina_vision, models_dir, HAS_JINA};
+mod common;
+
+use common::{read_fixture_photo, reference_crop, reference_rows, fixture_photos_present};
+use nahpu_embed_burn::{load_jina_text, load_jina_vision, HAS_JINA};
 use nahpu_embed_core::preprocess::{decode_upright, normalise_to_chw, resize_and_centre_crop};
 use nahpu_embed_core::{cosine_similarity, TextRole};
 
@@ -106,38 +109,9 @@ fn reference_data_is_actually_loaded() {
 }
 
 fn skip_without_jina() -> bool {
-    let fixtures_present = reference_rows(IMAGE_REFERENCE)
-        .iter()
-        .all(|(fixture, _)| fixture_photo_path(fixture).exists());
-    if HAS_JINA && fixtures_present {
+    if HAS_JINA && fixture_photos_present(IMAGE_REFERENCE) {
         return false;
     }
     eprintln!("skipped: jina or its fixtures are missing — run scripts/fetch-model.sh, then rebuild");
     true
-}
-
-fn fixture_photo_path(fixture: &str) -> std::path::PathBuf {
-    models_dir().join(format!("{fixture}.jpg"))
-}
-
-fn read_fixture_photo(fixture: &str) -> Vec<u8> {
-    std::fs::read(fixture_photo_path(fixture)).unwrap()
-}
-
-fn reference_crop(fixture: &str) -> image::RgbImage {
-    let bytes = std::fs::read(format!("{}/tests/data/{fixture}.pixels.rgb", env!("CARGO_MANIFEST_DIR"))).unwrap();
-    image::RgbImage::from_raw(224, 224, bytes).unwrap()
-}
-
-/// The vector is always the last tab-separated column.
-fn reference_rows(table: &str) -> Vec<(String, Vec<f32>)> {
-    table
-        .lines()
-        .filter(|line| !line.starts_with('#') && !line.trim().is_empty())
-        .map(|line| {
-            let columns: Vec<&str> = line.split('\t').collect();
-            let vector = columns.last().unwrap().split(',').map(|x| x.parse().unwrap()).collect();
-            (columns[0].to_string(), vector)
-        })
-        .collect()
 }

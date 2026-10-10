@@ -4,10 +4,12 @@ use anyhow::{Context, Result};
 use burn::prelude::*;
 use burn::tensor::Bytes;
 
+mod bioclip;
 mod clip;
 mod jina;
 mod minilm;
 
+pub use bioclip::{load_bioclip_text, load_bioclip_vision, BIOCLIP_LOGIT_SCALE};
 pub use clip::{load_clip, ClipModel, CLIP_MODEL_NAMES};
 pub use jina::{load_jina_text, load_jina_vision, JINA_LOGIT_SCALE};
 pub use minilm::load_minilm;
@@ -36,6 +38,7 @@ pub const BACKEND_NAME: &str = if cfg!(feature = "metal") {
 
 pub const HAS_MINILM: bool = cfg!(has_minilm);
 pub const HAS_JINA: bool = cfg!(all(has_jina_text, has_jina_vision));
+pub const HAS_BIOCLIP: bool = cfg!(all(has_bioclip_text, has_bioclip_vision));
 
 pub fn models_dir() -> &'static Path {
     Path::new(env!("NAHPU_MODELS_DIR"))

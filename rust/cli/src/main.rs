@@ -6,7 +6,7 @@ use std::time::Instant;
 use anyhow::{Context, Result};
 use clap::{Args, Parser, Subcommand, ValueEnum};
 
-use nahpu_embed_burn::{load_clip, BACKEND_NAME, CLIP_MODEL_NAMES, HAS_JINA, HAS_MINILM};
+use nahpu_embed_burn::{load_clip, BACKEND_NAME, CLIP_MODEL_NAMES, HAS_BIOCLIP, HAS_JINA, HAS_MINILM};
 use nahpu_embed_core::preprocess::Framing;
 use nahpu_embed_core::zero_shot::{read_labels_csv, LabelWording, PromptSet, ZeroShotClassifier};
 
@@ -137,6 +137,7 @@ fn report_what_is_available() {
     println!("backend:       {BACKEND_NAME}");
     println!("all-MiniLM-L6-v2: {}", present(HAS_MINILM));
     println!("jina-clip-v1:  {}", present(HAS_JINA));
+    println!("bioclip:       {}", present(HAS_BIOCLIP));
     println!("clip models:   {}", CLIP_MODEL_NAMES.join(", "));
 }
 
