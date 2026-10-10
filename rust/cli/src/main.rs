@@ -1,3 +1,5 @@
+mod eval;
+
 use std::path::PathBuf;
 use std::time::Instant;
 
@@ -5,6 +7,7 @@ use anyhow::{Context, Result};
 use clap::{Args, Parser, Subcommand, ValueEnum};
 
 use nahpu_embed_burn::{load_clip, BACKEND_NAME, CLIP_MODEL_NAMES, HAS_JINA, HAS_MINILM};
+use nahpu_embed_core::preprocess::Framing;
 use nahpu_embed_core::zero_shot::{read_labels_csv, LabelWording, PromptSet, ZeroShotClassifier};
 
 #[derive(Parser)]
@@ -24,6 +27,24 @@ enum Command {
         top: usize,
         #[arg(required = true)]
         photos: Vec<PathBuf>,
+    },
+    /// Score a labelled manifest and write predictions, metrics.json and report.md.
+    Eval {
+        #[command(flatten)]
+        setup: ClassifierSetup,
+        /// CSV with `path` (relative to the manifest) and `class` columns.
+        #[arg(long)]
+        manifest: PathBuf,
+        #[arg(long)]
+        out: PathBuf,
+        #[arg(long, value_enum, default_value_t = FramingArg::CentreCrop)]
+        framing: FramingArg,
+        /// Every framing, prompt set and wording. Photos are embedded once per framing.
+        #[arg(long)]
+        sweep: bool,
+        /// Only the first N photos, for a quick check.
+        #[arg(long)]
+        limit: Option<usize>,
     },
 }
 
@@ -46,6 +67,21 @@ enum Prompts {
     Photo,
     Specimen,
     Ensemble,
+}
+
+#[derive(Clone, Copy, ValueEnum)]
+enum FramingArg {
+    CentreCrop,
+    Pad,
+}
+
+impl From<FramingArg> for Framing {
+    fn from(framing: FramingArg) -> Self {
+        match framing {
+            FramingArg::CentreCrop => Framing::CentreCrop,
+            FramingArg::Pad => Framing::PadToSquare,
+        }
+    }
 }
 
 #[derive(Clone, Copy, ValueEnum)]
@@ -83,6 +119,16 @@ fn main() -> Result<()> {
             Ok(())
         }
         Some(Command::Classify { setup, top, photos }) => classify(&setup, top, &photos),
+        Some(Command::Eval { setup, manifest, out, framing, sweep, limit }) => {
+            let (framings, settings) = if sweep {
+                let wordings = [LabelWording::Common, LabelWording::Taxon, LabelWording::Both];
+                let settings = PromptSet::ALL.iter().flat_map(|&p| wordings.map(|w| (p, w))).collect();
+                (vec![Framing::CentreCrop, Framing::PadToSquare], settings)
+            } else {
+                (vec![framing.into()], vec![(setup.prompts.into(), setup.wording.into())])
+            };
+            eval::run(&eval::EvalPlan { model: setup.model, manifest, labels: setup.labels, out, framings, settings, limit })
+        }
     }
 }
 

@@ -23,9 +23,26 @@ impl PreprocessConfig {
     };
 }
 
+/// How a non-square photo becomes square.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Framing {
+    /// What the models were trained with. Cuts the ends off long specimens.
+    CentreCrop,
+    /// Keeps the whole photo and fills the gaps with the mean colour, which
+    /// normalises to zero.
+    PadToSquare,
+}
+
 pub fn preprocess(encoded_image: &[u8], config: &PreprocessConfig) -> Result<Vec<f32>> {
+    preprocess_framed(encoded_image, config, Framing::CentreCrop)
+}
+
+pub fn preprocess_framed(encoded_image: &[u8], config: &PreprocessConfig, framing: Framing) -> Result<Vec<f32>> {
     let upright = decode_upright(encoded_image)?;
-    let square = resize_and_centre_crop(&upright, config.size)?;
+    let square = match framing {
+        Framing::CentreCrop => resize_and_centre_crop(&upright, config.size)?,
+        Framing::PadToSquare => resize_and_pad(&upright, config)?,
+    };
     Ok(normalise_to_chw(&square, config))
 }
 
@@ -51,6 +68,17 @@ pub fn resize_and_centre_crop(image: &RgbImage, size: u32) -> Result<RgbImage> {
     Ok(image::imageops::crop_imm(&resized, left, top, size, size).to_image())
 }
 
+pub fn resize_and_pad(image: &RgbImage, config: &PreprocessConfig) -> Result<RgbImage> {
+    let size = config.size;
+    let (width, height) = longest_side_to(size, image.width(), image.height());
+    let resized = resize_bicubic(image, width, height)?;
+
+    let fill = image::Rgb(config.mean.map(|m| (m * 255.0).round() as u8));
+    let mut square = RgbImage::from_pixel(size, size, fill);
+    image::imageops::replace(&mut square, &resized, i64::from((size - width) / 2), i64::from((size - height) / 2));
+    Ok(square)
+}
+
 pub fn normalise_to_chw(square: &RgbImage, config: &PreprocessConfig) -> Vec<f32> {
     let plane = (square.width() * square.height()) as usize;
     let mut chw = vec![0.0; 3 * plane];
@@ -70,6 +98,15 @@ fn shortest_side_to(size: u32, width: u32, height: u32) -> (u32, u32) {
         (size, scaled_long(height, width))
     } else {
         (scaled_long(width, height), size)
+    }
+}
+
+fn longest_side_to(size: u32, width: u32, height: u32) -> (u32, u32) {
+    let scaled_short = |short: u32, long: u32| ((f64::from(size) * f64::from(short) / f64::from(long)).round() as u32).max(1);
+    if width >= height {
+        (size, scaled_short(height, width))
+    } else {
+        (scaled_short(width, height), size)
     }
 }
 
@@ -105,6 +142,20 @@ mod tests {
         assert_eq!(centre_offset(297, 224), 36);
         assert_eq!(centre_offset(299, 224), 38);
         assert_eq!(centre_offset(298, 224), 37);
+    }
+
+    #[test]
+    fn padding_keeps_the_whole_photo_and_centres_it() {
+        let config = PreprocessConfig::OPENAI_CLIP_224;
+        let wide = RgbImage::from_pixel(400, 200, image::Rgb([255, 255, 255]));
+
+        let square = resize_and_pad(&wide, &config).unwrap();
+
+        assert_eq!(square.dimensions(), (224, 224));
+        assert_eq!(square.get_pixel(0, 0), &image::Rgb([123, 117, 104]));
+        assert_eq!(square.get_pixel(112, 112), &image::Rgb([255, 255, 255]));
+        assert_eq!(square.get_pixel(112, 56), &image::Rgb([255, 255, 255]));
+        assert_eq!(square.get_pixel(112, 55), &image::Rgb([123, 117, 104]));
     }
 
     #[test]

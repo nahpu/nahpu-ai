@@ -14,3 +14,6 @@ nahpu_embed_core.workspace = true
 nahpu_embed_burn.workspace = true
 anyhow.workspace = true
 clap = { version = "4", features = ["derive"] }
+csv = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
