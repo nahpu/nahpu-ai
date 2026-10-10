@@ -1,11 +1,11 @@
-use nahpu_embed_burn::{baseline_tokenizer_path, baseline_weights_path, BurnEmbedder};
-use nahpu_embed_core::{cosine_similarity, matches_known_good, TextEmbedder, TextRole};
+use nahpu_embed_burn::load_minilm;
+use nahpu_embed_core::{cosine_similarity, matches_known_good, TextRole};
 
 const REFERENCE: &str = include_str!("data/candle-reference.tsv");
 
 #[test]
 fn matches_the_candle_reference_embeddings() {
-    let Some(embedder) = load_baseline_embedder() else {
+    let Ok(embedder) = load_minilm() else {
         eprintln!("skipped: no model compiled in — run scripts/fetch-model.sh, then rebuild");
         return;
     };
@@ -22,12 +22,6 @@ fn matches_the_candle_reference_embeddings() {
             cosine_similarity(&actual, &expected)
         );
     }
-}
-
-fn load_baseline_embedder() -> Option<BurnEmbedder> {
-    let weights = std::fs::read(baseline_weights_path()?).ok()?;
-    let tokenizer = std::fs::read(baseline_tokenizer_path()?).ok()?;
-    BurnEmbedder::from_bytes(&weights, &tokenizer).ok()
 }
 
 fn reference_embeddings() -> Vec<(String, Vec<f32>)> {

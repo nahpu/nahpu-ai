@@ -1,28 +1,22 @@
 use anyhow::Result;
 
-use nahpu_embed_burn::{
-    baseline_tokenizer_path, baseline_weights_path, BurnEmbedder, BACKEND_NAME,
-};
-use nahpu_embed_core::{cosine_similarity, TextEmbedder, TextRole};
+use nahpu_embed_burn::{load_minilm, BACKEND_NAME, HAS_MINILM};
+use nahpu_embed_core::{cosine_similarity, TextRole};
 
 fn main() -> Result<()> {
     println!("backend:   {BACKEND_NAME}");
 
-    let (Some(weights), Some(tokenizer)) = (baseline_weights_path(), baseline_tokenizer_path())
-    else {
+    if !HAS_MINILM {
         println!("model:     none — run scripts/fetch-model.sh, then rebuild");
         return Ok(());
-    };
+    }
     println!("model:     compiled in");
 
-    embed_sample_sentences(weights, tokenizer)
+    embed_sample_sentences()
 }
 
-fn embed_sample_sentences(weights_path: &str, tokenizer_path: &str) -> Result<()> {
-    let embedder = BurnEmbedder::from_bytes(
-        &std::fs::read(weights_path)?,
-        &std::fs::read(tokenizer_path)?,
-    )?;
+fn embed_sample_sentences() -> Result<()> {
+    let embedder = load_minilm()?;
 
     let bird = embedder.embed(
         "A small brown bird perched on a branch.",

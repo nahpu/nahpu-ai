@@ -2,46 +2,65 @@ use std::path::{Path, PathBuf};
 
 use burn_onnx::{LoadStrategy, ModelGen};
 
-const BASELINE_STEM: &str = "all-MiniLM-L6-v2";
-const BASELINE_MODEL: &str = "all-MiniLM-L6-v2.onnx";
+struct OnnxModel {
+    stem: &'static str,
+    cfg: &'static str,
+    weights_env: &'static str,
+}
+
+const MODELS: [OnnxModel; 3] = [
+    OnnxModel {
+        stem: "all-MiniLM-L6-v2",
+        cfg: "has_minilm",
+        weights_env: "MINILM_WEIGHTS",
+    },
+    OnnxModel {
+        stem: "jina-clip-v1-text",
+        cfg: "has_jina_text",
+        weights_env: "JINA_TEXT_WEIGHTS",
+    },
+    OnnxModel {
+        stem: "jina-clip-v1-vision",
+        cfg: "has_jina_vision",
+        weights_env: "JINA_VISION_WEIGHTS",
+    },
+];
 
 fn main() {
-    declare_has_model_cfg();
-    rebuild_when_model_dir_changes();
+    println!("cargo::rerun-if-env-changed=NAHPU_MODEL_DIR");
 
     let models = models_dir();
-    let model = models.join(BASELINE_MODEL);
-    rebuild_when_models_appear(&models, &model);
+    println!("cargo::rustc-env=NAHPU_MODELS_DIR={}", models.display());
+    watch_for_models_appearing(&models);
 
-    if !model.exists() {
-        warn_model_missing(&model);
-        return;
+    for model in &MODELS {
+        println!("cargo::rustc-check-cfg=cfg({})", model.cfg);
+
+        let onnx = models.join(format!("{}.onnx", model.stem));
+        println!("cargo::rerun-if-changed={}", onnx.display());
+        if !onnx.exists() {
+            warn_model_missing(&onnx);
+            continue;
+        }
+
+        generate_without_baked_paths(&onnx);
+        println!("cargo::rustc-env={}={}", model.weights_env, generated_weights(model.stem).display());
+        println!("cargo::rustc-cfg={}", model.cfg);
     }
-
-    generate_model_without_baked_paths(&model);
-    export_baseline_asset_paths(&model);
-    enable_has_model_cfg();
 }
 
-fn export_baseline_asset_paths(model: &Path) {
-    let generated = PathBuf::from(std::env::var("OUT_DIR").expect("cargo sets OUT_DIR"))
-        .join("model")
-        .join(format!("{BASELINE_STEM}.bpk"));
-    println!("cargo::rustc-env=BASELINE_WEIGHTS={}", generated.display());
-
-    let tokenizer = model.with_file_name(format!("{BASELINE_STEM}.tokenizer.json"));
-    println!(
-        "cargo::rustc-env=BASELINE_TOKENIZER={}",
-        tokenizer.display()
-    );
-}
-
-fn generate_model_without_baked_paths(model: &Path) {
+fn generate_without_baked_paths(onnx: &Path) {
     ModelGen::new()
-        .input(model.to_str().expect("model path is not valid UTF-8"))
+        .input(onnx.to_str().expect("model path is not valid UTF-8"))
         .out_dir("model/")
         .load_strategy(LoadStrategy::Bytes)
         .run_from_script();
+}
+
+fn generated_weights(stem: &str) -> PathBuf {
+    PathBuf::from(std::env::var("OUT_DIR").expect("cargo sets OUT_DIR"))
+        .join("model")
+        .join(format!("{stem}.bpk"))
 }
 
 fn models_dir() -> PathBuf {
@@ -52,31 +71,18 @@ fn models_dir() -> PathBuf {
     fallback.canonicalize().unwrap_or(fallback)
 }
 
-fn declare_has_model_cfg() {
-    println!("cargo::rustc-check-cfg=cfg(has_model)");
-}
-
-fn enable_has_model_cfg() {
-    println!("cargo::rustc-cfg=has_model");
-}
-
-fn rebuild_when_model_dir_changes() {
-    println!("cargo::rerun-if-env-changed=NAHPU_MODEL_DIR");
-}
-
-/// Watches the directory as well as the file: cargo cannot reliably notice a
+/// Watches the directory as well as the files: cargo cannot reliably notice a
 /// path that does not exist yet, and the first fetch creates both.
-fn rebuild_when_models_appear(models: &Path, model: &Path) {
-    let watched = models.parent().unwrap_or(models);
-    println!("cargo::rerun-if-changed={}", watched.display());
+fn watch_for_models_appearing(models: &Path) {
+    let parent = models.parent().unwrap_or(models);
+    println!("cargo::rerun-if-changed={}", parent.display());
     println!("cargo::rerun-if-changed={}", models.display());
-    println!("cargo::rerun-if-changed={}", model.display());
 }
 
-fn warn_model_missing(model: &Path) {
+fn warn_model_missing(onnx: &Path) {
     println!(
-        "cargo::warning=no ONNX at {} — building without a model. \
-         Run scripts/fetch-model.sh to enable inference.",
-        model.display()
+        "cargo::warning=no ONNX at {} — building without it. \
+         Run scripts/fetch-model.sh to enable it.",
+        onnx.display()
     );
 }

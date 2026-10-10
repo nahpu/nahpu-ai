@@ -208,8 +208,9 @@ __marimo__/
 
 # --- Rust ---
 
-# Build artifacts
+# Build artifacts (target-metal etc. hold per-backend builds)
 /target
+target-*/
 **/*.rs.bk
 
 # Fetched model assets -- never commit
