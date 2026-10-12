@@ -224,3 +224,7 @@ target-*/
 
 # --- macOS ---
 .DS_Store
+
+# NEON test set: images and DwC-A cache are fetched, never committed
+/data/neon/images/
+/data/neon/cache/

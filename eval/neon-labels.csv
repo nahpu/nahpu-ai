@@ -1,0 +1,8 @@
+class,common_name,taxon_name
+shrew,shrew,Soricidae
+mouse_or_vole,mouse or vole,Rodentia
+frog_or_toad,frog or toad,Anura
+salamander,salamander,Caudata
+lizard,lizard,Squamata
+ground_beetle,ground beetle,Carabidae
+mosquito,mosquito,Culicidae
