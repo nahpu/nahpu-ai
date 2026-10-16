@@ -79,7 +79,7 @@ cd rust && cargo run --release --features metal --bin cli -- eval --sweep \
 
 This takes about a minute on Metal. Add `--limit 20` for a quick check. Each run
 writes `report.md`, `metrics.json` and the predictions to `--out`. To check how
-much picking the best setting flatters the score, run
+much picking the best setting flatters the score, run the sweep, then
 `python3 scripts/reference/held_out.py data/neon/manifest.csv eval/results/bioclip`
 from the repo root.
 

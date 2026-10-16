@@ -228,3 +228,6 @@ target-*/
 # NEON test set: images and DwC-A cache are fetched, never committed
 /data/neon/images/
 /data/neon/cache/
+
+# Eval predictions are rebuilt by `cli eval`; reports and metrics are committed
+/eval/results/*/predictions/
