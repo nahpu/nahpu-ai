@@ -39,15 +39,62 @@ cd rust && cargo run --bin cli
 The build works without models on purpose, so a fresh clone compiles without a
 several-hundred-megabyte download.
 
+Rank labels for a photo with zero-shot classification (jina-clip-v1):
+
+```sh
+cd rust && cargo run --release --bin cli -- classify \
+    --labels ../eval/neon-labels.csv ../models/fixture-neon-shrew.jpg
+```
+
+For BioCLIP, export it once (it has no official ONNX), then rebuild and pass
+`--model bioclip`:
+
+```sh
+python3 -m venv scripts/bioclip/.venv
+scripts/bioclip/.venv/bin/pip install -r scripts/bioclip/requirements.txt
+scripts/bioclip/.venv/bin/python -I scripts/bioclip/export_onnx.py
+```
+
+`--prompts` picks the prompt templates and `--wording` picks common names, taxon
+names or both. Add `--features metal` on a Mac for about 20x faster images.
+
+## Evaluation
+
+The NEON test set is 700 specimen photos, 100 for each of 7 classes. The
+manifest is committed. The images are not, so fetch them once:
+
+```sh
+python3 -m venv scripts/neon/.venv
+scripts/neon/.venv/bin/pip install -r scripts/neon/requirements.txt
+scripts/neon/.venv/bin/python -I scripts/neon/fetch_dataset.py
+```
+
+Then score one model on every setting (framing, prompts, wording):
+
+```sh
+cd rust && cargo run --release --features metal --bin cli -- eval --sweep \
+    --model bioclip --labels ../eval/neon-labels.csv \
+    --manifest ../data/neon/manifest.csv --out ../eval/results/bioclip
+```
+
+This takes about a minute on Metal. Add `--limit 20` for a quick check. Each run
+writes `report.md`, `metrics.json` and the predictions to `--out`. To check how
+much picking the best setting flatters the score, run the sweep, then
+`python3 scripts/reference/held_out.py data/neon/manifest.csv eval/results/bioclip`
+from the repo root.
+
+Current results: [BioCLIP](eval/results/bioclip/report.md) 86.9%,
+[jina-clip-v1](eval/results/jina-clip-v1/report.md) 66.1%.
+
 ## Crates
 
 | Crate | What |
 |---|---|
-| `nahpu-embed-core` | Traits and helpers. No framework dependency. |
-| `nahpu-embed-burn` | Burn engines. Backend picked by cargo feature. |
+| `nahpu_embed_core` | Traits and helpers. No framework dependency. |
+| `nahpu_embed_burn` | Burn engines. Backend picked by cargo feature. |
 | `cli` | Scratch binary for trying things by hand. |
 
-`nahpu-embed-core` is the extension point. Add an engine by implementing
+`nahpu_embed_core` is the extension point. Add an engine by implementing
 `TextEmbedder` or `ImageEmbedder`; nothing else has to change.
 
 ## Backends

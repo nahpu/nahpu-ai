@@ -9,6 +9,11 @@ DEST_DIR="${NAHPU_MODEL_DIR:-$ROOT/models}"
 MODELS="
 all-MiniLM-L6-v2.onnx|https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/onnx/model.onnx|6fd5d72fe4589f189f8ebc006442dbb529bb7ce38f8082112682524616046452
 all-MiniLM-L6-v2.tokenizer.json|https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/tokenizer.json|be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037
+jina-clip-v1-text.onnx|https://huggingface.co/jinaai/jina-clip-v1/resolve/ceb3e44ca4d6eceaa4f3fb58b1c1a5748b3f29b6/onnx/text_model.onnx|d7b2e732e685dcaf5ca2a36e7f5d9169906859f4590766689dbf7b00b20da01b
+jina-clip-v1-vision.onnx|https://huggingface.co/jinaai/jina-clip-v1/resolve/ceb3e44ca4d6eceaa4f3fb58b1c1a5748b3f29b6/onnx/vision_model.onnx|3032bf5f20bc39e23e9d2fff51ed1406341f1490bade128ffdcc6307af63c246
+jina-clip-v1.tokenizer.json|https://huggingface.co/jinaai/jina-clip-v1/resolve/ceb3e44ca4d6eceaa4f3fb58b1c1a5748b3f29b6/tokenizer.json|b36ee0ed6d20d181de65ce729dea6169658a9cfa4dede6717ba9fa2e4fbd3bc7
+fixture-neon-shrew.jpg|https://biorepo.neonscience.org/media/NEON_MAMC-VSS/00000/D00000153413-1_1701716781_lg.jpg|f320a3d961ede53a976672d6500faa733ca28ab0ce0394a88db54bedece235f3
+fixture-neon-beetle.jpg|https://biorepo.neonscience.org/media/NEON_CARC-AP/OAES_/OAES_009.20160727.PASCAL.01.8_dorsal.jpg|c9f3adb94a80e40eca6d8193420a054a7de66c166ba6e06853c9eefdb9abadb7
 "
 
 print_usage() {

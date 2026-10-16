@@ -1,107 +1,48 @@
 use anyhow::Result;
-use nahpu_embed_core::{Embedding, TextEmbedder, TextRole};
+use nahpu_embed_core::{Embedding, TextEmbedder};
 
-#[cfg(has_model)]
+pub fn load_minilm() -> Result<Box<dyn TextEmbedder>> {
+    #[cfg(has_minilm)]
+    return Ok(Box::new(with_model::MiniLm::load()?));
+    #[cfg(not(has_minilm))]
+    return Err(crate::missing_model("all-MiniLM-L6-v2"));
+}
+
+#[allow(dead_code)]
+const DIMENSIONS: usize = 384;
+
+#[cfg(has_minilm)]
 #[allow(clippy::all, clippy::pedantic, dead_code)]
 mod model {
     include!(concat!(env!("OUT_DIR"), "/model/all-MiniLM-L6-v2.rs"));
 }
 
-#[cfg(all(
-    feature = "flex",
-    not(any(feature = "metal", feature = "vulkan", feature = "wgpu"))
-))]
-pub type SelectedBackend = burn::backend::Flex;
-#[cfg(feature = "metal")]
-pub type SelectedBackend = burn::backend::Metal;
-#[cfg(all(feature = "vulkan", not(feature = "metal")))]
-pub type SelectedBackend = burn::backend::Vulkan;
-#[cfg(all(feature = "wgpu", not(any(feature = "metal", feature = "vulkan"))))]
-pub type SelectedBackend = burn::backend::Wgpu;
-
-pub const BACKEND_NAME: &str = if cfg!(feature = "metal") {
-    "burn-metal"
-} else if cfg!(feature = "vulkan") {
-    "burn-vulkan"
-} else if cfg!(feature = "wgpu") {
-    "burn-wgpu"
-} else {
-    "burn-flex"
-};
-
-pub const HAS_MODEL: bool = cfg!(has_model);
-
-pub const BASELINE_DIMENSIONS: usize = 384;
-
-pub fn baseline_weights_path() -> Option<&'static str> {
-    #[cfg(has_model)]
-    return Some(env!("BASELINE_WEIGHTS"));
-    #[cfg(not(has_model))]
-    return None;
-}
-
-pub fn baseline_tokenizer_path() -> Option<&'static str> {
-    #[cfg(has_model)]
-    return Some(env!("BASELINE_TOKENIZER"));
-    #[cfg(not(has_model))]
-    return None;
-}
-
-#[cfg(has_model)]
-pub use with_model::BurnEmbedder;
-
-#[cfg(not(has_model))]
-pub struct BurnEmbedder;
-
-#[cfg(not(has_model))]
-impl BurnEmbedder {
-    pub fn from_bytes(_weights: &[u8], _tokenizer_json: &[u8]) -> Result<Self> {
-        anyhow::bail!("no model compiled in — run scripts/fetch-model.sh, then rebuild")
-    }
-}
-
-#[cfg(not(has_model))]
-impl TextEmbedder for BurnEmbedder {
-    fn name(&self) -> &str {
-        BACKEND_NAME
-    }
-
-    fn dimensions(&self) -> usize {
-        BASELINE_DIMENSIONS
-    }
-
-    fn embed(&self, _text: &str, _role: TextRole) -> Result<Embedding> {
-        anyhow::bail!("no model compiled in — run scripts/fetch-model.sh, then rebuild")
-    }
-}
-
-#[cfg(has_model)]
+#[cfg(has_minilm)]
 mod with_model {
     use super::*;
 
     use burn::prelude::*;
-    use burn::tensor::Bytes;
+    use nahpu_embed_core::{normalise_to_unit_length, TextRole};
     use tokenizers::Tokenizer;
 
-    use crate::model::Model;
+    use super::model::Model;
+    use crate::{SelectedBackend, BACKEND_NAME};
 
-    pub struct BurnEmbedder {
+    pub struct MiniLm {
         model: Model<SelectedBackend>,
         tokenizer: Tokenizer,
         device: Device<SelectedBackend>,
         name: String,
     }
 
-    impl BurnEmbedder {
-        pub fn from_bytes(weights: &[u8], tokenizer_json: &[u8]) -> Result<Self> {
+    impl MiniLm {
+        pub fn load() -> Result<Self> {
             let device = Default::default();
-            let model = Model::from_bytes(Bytes::from_elems(weights.to_vec()), &device);
-            let tokenizer = Tokenizer::from_bytes(tokenizer_json)
-                .map_err(|e| anyhow::anyhow!("could not read tokenizer: {e}"))?;
+            let weights = crate::read_weights(env!("MINILM_WEIGHTS"))?;
 
             Ok(Self {
-                model,
-                tokenizer,
+                model: Model::from_bytes(weights, &device),
+                tokenizer: crate::read_tokenizer("all-MiniLM-L6-v2")?,
                 device,
                 name: format!("{BACKEND_NAME}/all-MiniLM-L6-v2"),
             })
@@ -137,13 +78,13 @@ mod with_model {
         }
     }
 
-    impl TextEmbedder for BurnEmbedder {
+    impl TextEmbedder for MiniLm {
         fn name(&self) -> &str {
             &self.name
         }
 
         fn dimensions(&self) -> usize {
-            BASELINE_DIMENSIONS
+            DIMENSIONS
         }
 
         fn embed(&self, text: &str, _role: TextRole) -> Result<Embedding> {
@@ -178,13 +119,5 @@ mod with_model {
             .into_iter()
             .map(|total| total / unmasked_count)
             .collect()
-    }
-
-    fn normalise_to_unit_length(vector: Vec<f32>) -> Vec<f32> {
-        let magnitude = vector.iter().map(|x| x * x).sum::<f32>().sqrt();
-        if magnitude == 0.0 {
-            return vector;
-        }
-        vector.into_iter().map(|x| x / magnitude).collect()
     }
 }

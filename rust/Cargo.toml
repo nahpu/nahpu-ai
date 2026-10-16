@@ -1,8 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/nahpu-embed-core",
-    "crates/nahpu-embed-burn",
+    "crates/nahpu_embed_core",
+    "crates/nahpu_embed_burn",
     "cli",
 ]
 
@@ -14,8 +14,8 @@ repository = "https://github.com/nahpu/nahpu-ai"
 
 [workspace.dependencies]
 anyhow = "1"
-nahpu-embed-core = { path = "crates/nahpu-embed-core" }
-nahpu-embed-burn = { path = "crates/nahpu-embed-burn" }
+nahpu_embed_core = { path = "crates/nahpu_embed_core" }
+nahpu_embed_burn = { path = "crates/nahpu_embed_burn" }
 burn = { version = "0.21", default-features = false, features = ["std"] }
 
 # Unoptimised tensor kernels make debug runs unusably slow (47x here), while our

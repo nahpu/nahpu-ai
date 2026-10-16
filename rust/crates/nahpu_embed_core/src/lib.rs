@@ -1,5 +1,10 @@
 use anyhow::Result;
 
+pub mod preprocess;
+pub mod zero_shot;
+
+pub use preprocess::PreprocessConfig;
+
 pub type Embedding = Vec<f32>;
 
 pub const PARITY_THRESHOLD: f32 = 0.999;
@@ -28,7 +33,15 @@ pub trait ImageEmbedder {
 
     fn dimensions(&self) -> usize;
 
-    fn embed_image(&self, encoded_image: &[u8]) -> Result<Embedding>;
+    fn preprocess_config(&self) -> PreprocessConfig;
+
+    /// Takes the normalised CHW tensor that `preprocess` produces.
+    fn embed_pixels(&self, pixels: &[f32]) -> Result<Embedding>;
+
+    fn embed_image(&self, encoded_image: &[u8]) -> Result<Embedding> {
+        let pixels = preprocess::preprocess(encoded_image, &self.preprocess_config())?;
+        self.embed_pixels(&pixels)
+    }
 }
 
 pub fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
@@ -46,6 +59,14 @@ pub fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
 
 pub fn matches_known_good(candidate: &[f32], known_good: &[f32]) -> bool {
     cosine_similarity(candidate, known_good) > PARITY_THRESHOLD
+}
+
+pub fn normalise_to_unit_length(vector: Vec<f32>) -> Vec<f32> {
+    let length = magnitude(&vector);
+    if length == 0.0 {
+        return vector;
+    }
+    vector.into_iter().map(|x| x / length).collect()
 }
 
 fn magnitude(v: &[f32]) -> f32 {

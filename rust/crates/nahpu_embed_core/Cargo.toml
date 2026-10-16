@@ -1,5 +1,5 @@
 [package]
-name = "nahpu-embed-core"
+name = "nahpu_embed_core"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -8,3 +8,5 @@ description = "Framework-free embedding abstractions shared by NAHPU AI experime
 
 [dependencies]
 anyhow.workspace = true
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp"] }
+fast_image_resize = { version = "6", features = ["image"] }

@@ -208,8 +208,9 @@ __marimo__/
 
 # --- Rust ---
 
-# Build artifacts
+# Build artifacts (target-metal etc. hold per-backend builds)
 /target
+target-*/
 **/*.rs.bk
 
 # Fetched model assets -- never commit
@@ -223,3 +224,10 @@ __marimo__/
 
 # --- macOS ---
 .DS_Store
+
+# NEON test set: images and DwC-A cache are fetched, never committed
+/data/neon/images/
+/data/neon/cache/
+
+# Eval predictions are rebuilt by `cli eval`; reports and metrics are committed
+/eval/results/*/predictions/

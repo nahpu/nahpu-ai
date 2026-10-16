@@ -1,0 +1,83 @@
+# Classes for the NEON zero-shot test set.
+#
+# Each class names the NEON collections to read, a taxon filter on the
+# occurrence record, and the photo view(s) to keep.
+#
+# View patterns are regexes matched against the image file stem. The stem is
+# the file name without the extension, the size tag (_lg, _med, _tn) and the
+# 10-digit upload timestamp. Views are tried in order. A specimen uses the
+# first view that matches one of its images.
+#
+# Checked against the 2026-10-07 archives and sample photos:
+# - MAMC-VSS: <barcode>-1 is a whole-body view (mostly lateral, sometimes
+#   dorsal), -2 and -3 are other body views, -4 and _skull-N are skulls.
+#   Older uploads use <barcode>, _1, _2 with a different order, so we skip them.
+# - HEVC: <barcode>-1 is dorsal, -2 is ventral. A bare <barcode> repeats -1.
+# - CARC-PV: the view is a word in the name ("dorsal_2.5x"). Names without a
+#   view word are mostly pinned oblique shots with the label in frame.
+# - MOSC-PV: "lateral" or "dorsal" in the name, about two photos per specimen.
+
+dwca_url: https://biorepo.neonscience.org/portal/content/dwca/NEON-{code}_DwC-A.zip
+
+classes:
+  - name: shrew
+    common_name: shrew
+    taxon_name: Soricidae
+    collections: [MAMC-VSS]
+    include: {family: [Soricidae]}
+    views:
+      - {label: "1", pattern: '^[A-Za-z0-9]+-1$'}
+
+  - name: mouse_or_vole
+    common_name: mouse or vole
+    taxon_name: Rodentia
+    collections: [MAMC-VSS]
+    include: {order: [Rodentia]}
+    # Squirrels, chipmunks and gophers are rodents but not mice or voles.
+    exclude: {family: [Sciuridae, Geomyidae]}
+    views:
+      - {label: "1", pattern: '^[A-Za-z0-9]+-1$'}
+
+  - name: frog_or_toad
+    common_name: frog or toad
+    taxon_name: Anura
+    collections: [HEVC-GBTS, HEVC-GBAP]
+    include: {order: [Anura]}
+    views:
+      - {label: "1", pattern: '^[A-Za-z0-9]+-1$'}
+
+  - name: salamander
+    common_name: salamander
+    taxon_name: Caudata
+    collections: [HEVC-GBTS, HEVC-GBAP]
+    include: {order: [Caudata]}
+    views:
+      - {label: "1", pattern: '^[A-Za-z0-9]+-1$'}
+
+  - name: lizard
+    common_name: lizard
+    taxon_name: Squamata
+    collections: [HEVC-GBTS, HEVC-GBAP]
+    include: {order: [Squamata]}
+    # A handful of snake records exist. Too few for their own class.
+    exclude: {family: [Colubridae, Natricidae, Dipsadidae, Viperidae, Elapidae, Leptotyphlopidae]}
+    views:
+      - {label: "1", pattern: '^[A-Za-z0-9]+-1$'}
+
+  - name: ground_beetle
+    common_name: ground beetle
+    taxon_name: Carabidae
+    collections: [CARC-PV]
+    include: {family: [Carabidae]}
+    views:
+      - {label: dorsal, pattern: '(?i)dorsal'}
+
+  - name: mosquito
+    common_name: mosquito
+    taxon_name: Culicidae
+    collections: [MOSC-PV]
+    include: {family: [Culicidae]}
+    views:
+      - {label: lateral, pattern: '(?i)lat'}
+      - {label: dorsal, pattern: '(?i)(dorsa|sorsal|_rsal)'}
+      - {label: other, pattern: '.'}
