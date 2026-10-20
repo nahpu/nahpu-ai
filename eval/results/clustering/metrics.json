@@ -1,0 +1,862 @@
+{
+  "bioclip": {
+    "meta": {
+      "model": "bioclip",
+      "backend": "burn-metal",
+      "manifest": "../data/neon/manifest.csv",
+      "framing": "centre-crop",
+      "prompts": "specimen",
+      "wording": "common",
+      "images": 700,
+      "dimensions": 512,
+      "git_commit": "c07f259"
+    },
+    "clusters": {
+      "kmeans": {
+        "ari_mean": 0.8386549055530228,
+        "ari_std": 0.06188157059612397,
+        "nmi_mean": 0.8828481970812285,
+        "nmi_std": 0.04097040417874529,
+        "confusion_seed_0": {
+          "classes": [
+            "frog_or_toad",
+            "ground_beetle",
+            "lizard",
+            "mosquito",
+            "mouse_or_vole",
+            "salamander",
+            "shrew"
+          ],
+          "rows": [
+            [
+              100,
+              0,
+              23,
+              0,
+              2,
+              5,
+              0
+            ],
+            [
+              0,
+              0,
+              13,
+              0,
+              0,
+              95,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              100
+            ],
+            [
+              0,
+              0,
+              0,
+              100,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              100,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              96,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              64,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      },
+      "agglomerative": {
+        "ari": 0.533122092453936,
+        "nmi": 0.7661070702148721,
+        "cluster_sizes": [
+          275,
+          200,
+          100,
+          85,
+          18,
+          15,
+          7
+        ]
+      },
+      "hdbscan": {
+        "clusters": 4,
+        "noise_share": 0.0128571428571429,
+        "ari_all": 0.543349237757429,
+        "nmi_all": 0.7741672352088662,
+        "ari_clustered": 0.5491369967501438,
+        "nmi_clustered": 0.7935291211593077
+      }
+    },
+    "neighbours": {
+      "silhouette": 0.2602722434260616,
+      "knn": {
+        "k1": {
+          "macro_accuracy": 0.9785714285714285,
+          "shrew_called_mouse_or_vole": 1,
+          "mouse_or_vole_called_shrew": 0
+        },
+        "k5": {
+          "macro_accuracy": 0.9771428571428571,
+          "shrew_called_mouse_or_vole": 0,
+          "mouse_or_vole_called_shrew": 1
+        }
+      },
+      "few_label_nearest_centre": {
+        "1": {
+          "mean": 0.8093795093795094,
+          "std": 0.03349784183823927
+        },
+        "5": {
+          "mean": 0.9149624060150376,
+          "std": 0.0210067975828966
+        },
+        "10": {
+          "mean": 0.9325396825396824,
+          "std": 0.01610544117917023
+        }
+      },
+      "centre_similarity_most_similar_first": [
+        {
+          "pair": "mouse_or_vole / shrew",
+          "cosine": 0.8304533967844885
+        },
+        {
+          "pair": "lizard / salamander",
+          "cosine": 0.8158629196938723
+        },
+        {
+          "pair": "frog_or_toad / lizard",
+          "cosine": 0.7901973376280228
+        },
+        {
+          "pair": "frog_or_toad / salamander",
+          "cosine": 0.7506436692139716
+        },
+        {
+          "pair": "lizard / shrew",
+          "cosine": 0.49644557687138824
+        },
+        {
+          "pair": "frog_or_toad / shrew",
+          "cosine": 0.47687801287299936
+        },
+        {
+          "pair": "frog_or_toad / mouse_or_vole",
+          "cosine": 0.46113739011836374
+        },
+        {
+          "pair": "salamander / shrew",
+          "cosine": 0.45760243561929026
+        },
+        {
+          "pair": "lizard / mouse_or_vole",
+          "cosine": 0.4574848584673053
+        },
+        {
+          "pair": "mouse_or_vole / salamander",
+          "cosine": 0.4080247612338607
+        },
+        {
+          "pair": "ground_beetle / mosquito",
+          "cosine": 0.3269853158972814
+        },
+        {
+          "pair": "mosquito / mouse_or_vole",
+          "cosine": 0.28871177882920834
+        },
+        {
+          "pair": "mosquito / shrew",
+          "cosine": 0.27665273436227994
+        },
+        {
+          "pair": "frog_or_toad / ground_beetle",
+          "cosine": 0.2560358325828982
+        },
+        {
+          "pair": "lizard / mosquito",
+          "cosine": 0.24344632136402164
+        },
+        {
+          "pair": "ground_beetle / lizard",
+          "cosine": 0.23771491059091165
+        },
+        {
+          "pair": "ground_beetle / salamander",
+          "cosine": 0.2369305107236176
+        },
+        {
+          "pair": "ground_beetle / mouse_or_vole",
+          "cosine": 0.22211287258026616
+        },
+        {
+          "pair": "mosquito / salamander",
+          "cosine": 0.2095513102407415
+        },
+        {
+          "pair": "frog_or_toad / mosquito",
+          "cosine": 0.1988953078676565
+        },
+        {
+          "pair": "ground_beetle / shrew",
+          "cosine": 0.15442492149090617
+        }
+      ]
+    },
+    "below_class": {
+      "frog_or_toad": {
+        "genera": {
+          "Acris": 10,
+          "Anaxyrus": 22,
+          "Gastrophryne": 5,
+          "Lithobates": 13,
+          "Pseudacris": 15,
+          "Scaphiopus": 7,
+          "Spea": 9
+        },
+        "photos": 81,
+        "photos_in_class": 100,
+        "kmeans_nmi": 0.36878716651051124,
+        "kmeans_nmi_shuffled_genera": 0.14079209377273125,
+        "knn1_macro_accuracy": 0.43382490525347667,
+        "chance_macro_accuracy": 0.14285714285714285
+      },
+      "ground_beetle": {
+        "genera": {
+          "Agonum": 5,
+          "Amara": 8,
+          "Chlaenius": 5,
+          "Harpalus": 8,
+          "Pterostichus": 14
+        },
+        "photos": 40,
+        "photos_in_class": 100,
+        "kmeans_nmi": 0.5324819360370148,
+        "kmeans_nmi_shuffled_genera": 0.16118208084206326,
+        "knn1_macro_accuracy": 0.7864285714285715,
+        "chance_macro_accuracy": 0.2
+      },
+      "lizard": {
+        "genera": {
+          "Ameiva": 6,
+          "Anolis": 8,
+          "Aspidoscelis": 17,
+          "Holbrookia": 10,
+          "Phrynosoma": 7,
+          "Plestiodon": 11,
+          "Sceloporus": 24,
+          "Sphaerodactylus": 5
+        },
+        "photos": 88,
+        "photos_in_class": 100,
+        "kmeans_nmi": 0.5151771626675432,
+        "kmeans_nmi_shuffled_genera": 0.1638120517297889,
+        "knn1_macro_accuracy": 0.6884318500127324,
+        "chance_macro_accuracy": 0.125
+      },
+      "mosquito": {
+        "genera": {
+          "Aedes": 58,
+          "Anopheles": 13,
+          "Culex": 16,
+          "Psorophora": 11
+        },
+        "photos": 98,
+        "photos_in_class": 100,
+        "kmeans_nmi": 0.29846454200585804,
+        "kmeans_nmi_shuffled_genera": 0.036865097184886585,
+        "knn1_macro_accuracy": 0.514976941162286,
+        "chance_macro_accuracy": 0.25
+      },
+      "mouse_or_vole": {
+        "genera": {
+          "Chaetodipus": 10,
+          "Dipodomys": 7,
+          "Microtus": 12,
+          "Perognathus": 6,
+          "Peromyscus": 21,
+          "Reithrodontomys": 5,
+          "Zapus": 9
+        },
+        "photos": 70,
+        "photos_in_class": 100,
+        "kmeans_nmi": 0.7889455479084048,
+        "kmeans_nmi_shuffled_genera": 0.15516650221770747,
+        "knn1_macro_accuracy": 0.7514739229024942,
+        "chance_macro_accuracy": 0.14285714285714285
+      },
+      "salamander": {
+        "genera": {
+          "Ambystoma": 19,
+          "Desmognathus": 16,
+          "Ensatina": 9,
+          "Eurycea": 11,
+          "Notophthalmus": 8,
+          "Plethodon": 24
+        },
+        "photos": 87,
+        "photos_in_class": 100,
+        "kmeans_nmi": 0.4349520197593609,
+        "kmeans_nmi_shuffled_genera": 0.09843926771206506,
+        "knn1_macro_accuracy": 0.6954855573276625,
+        "chance_macro_accuracy": 0.16666666666666666
+      },
+      "shrew": {
+        "genera": {
+          "Blarina": 17,
+          "Sorex": 79
+        },
+        "photos": 96,
+        "photos_in_class": 100,
+        "kmeans_nmi": 0.7742606821959036,
+        "kmeans_nmi_shuffled_genera": 0.0045511090624552036,
+        "knn1_macro_accuracy": 0.9873417721518987,
+        "chance_macro_accuracy": 0.5
+      }
+    },
+    "photo_setup": {
+      "nmi_class_vs_creator": 0.4448952052090308,
+      "nmi_clusters_vs_creator": 0.44111797359644106,
+      "within_class": {
+        "frog_or_toad / creator": {
+          "photos": 25,
+          "values": 4,
+          "same_as_nearest": 0.6,
+          "chance": 0.27
+        },
+        "lizard / creator": {
+          "photos": 24,
+          "values": 5,
+          "same_as_nearest": 0.625,
+          "chance": 0.2898550724637681
+        },
+        "mouse_or_vole / creator": {
+          "photos": 100,
+          "values": 4,
+          "same_as_nearest": 0.53,
+          "chance": 0.32303030303030306
+        },
+        "salamander / creator": {
+          "photos": 25,
+          "values": 3,
+          "same_as_nearest": 0.6,
+          "chance": 0.4066666666666667
+        },
+        "shrew / creator": {
+          "photos": 99,
+          "values": 7,
+          "same_as_nearest": 0.7070707070707071,
+          "chance": 0.3318903318903319
+        },
+        "mosquito / view": {
+          "photos": 100,
+          "values": 2,
+          "same_as_nearest": 0.97,
+          "chance": 0.8684848484848485
+        }
+      },
+      "within_genus": {
+        "Peromyscus / creator": {
+          "photos": 21,
+          "values": 3,
+          "same_as_nearest": 0.38095238095238093,
+          "chance": 0.319047619047619
+        },
+        "Sorex / creator": {
+          "photos": 78,
+          "values": 5,
+          "same_as_nearest": 0.7051282051282052,
+          "chance": 0.3563103563103563
+        }
+      }
+    },
+    "misfits": [
+      {
+        "path": "images/lizard/NEON06J6Q_1.jpg",
+        "class": "lizard",
+        "genus": "Plestiodon",
+        "neighbours": "salamander"
+      }
+    ],
+    "zero_shot": "86.9%"
+  },
+  "jina-clip-v1": {
+    "meta": {
+      "model": "jina-clip-v1",
+      "backend": "burn-metal",
+      "manifest": "../data/neon/manifest.csv",
+      "framing": "centre-crop",
+      "prompts": "ensemble",
+      "wording": "common",
+      "images": 700,
+      "dimensions": 768,
+      "git_commit": "c07f259"
+    },
+    "clusters": {
+      "kmeans": {
+        "ari_mean": 0.6135992430852056,
+        "ari_std": 0.0035933933011818744,
+        "nmi_mean": 0.7355151912249631,
+        "nmi_std": 0.004285275083705301,
+        "confusion_seed_0": {
+          "classes": [
+            "frog_or_toad",
+            "ground_beetle",
+            "lizard",
+            "mosquito",
+            "mouse_or_vole",
+            "salamander",
+            "shrew"
+          ],
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              99,
+              0,
+              100
+            ],
+            [
+              0,
+              0,
+              0,
+              100,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              100,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              27,
+              0,
+              0,
+              68,
+              0
+            ],
+            [
+              30,
+              0,
+              33,
+              0,
+              0,
+              13,
+              0
+            ],
+            [
+              18,
+              0,
+              27,
+              0,
+              1,
+              19,
+              0
+            ],
+            [
+              52,
+              0,
+              13,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      },
+      "agglomerative": {
+        "ari": 0.5433964871791905,
+        "nmi": 0.7709289948050434,
+        "cluster_sizes": [
+          288,
+          195,
+          100,
+          100,
+          10,
+          5,
+          2
+        ]
+      },
+      "hdbscan": {
+        "clusters": 4,
+        "noise_share": 0.0842857142857143,
+        "ari_all": 0.5164568117353429,
+        "nmi_all": 0.7012163734894472,
+        "ari_clustered": 0.5626942031335848,
+        "nmi_clustered": 0.7980128392948027
+      }
+    },
+    "neighbours": {
+      "silhouette": 0.20698483688383557,
+      "knn": {
+        "k1": {
+          "macro_accuracy": 0.8557142857142856,
+          "shrew_called_mouse_or_vole": 7,
+          "mouse_or_vole_called_shrew": 35
+        },
+        "k5": {
+          "macro_accuracy": 0.8842857142857142,
+          "shrew_called_mouse_or_vole": 4,
+          "mouse_or_vole_called_shrew": 31
+        }
+      },
+      "few_label_nearest_centre": {
+        "1": {
+          "mean": 0.6626984126984127,
+          "std": 0.03458954524360769
+        },
+        "5": {
+          "mean": 0.7706015037593985,
+          "std": 0.0272237563068841
+        },
+        "10": {
+          "mean": 0.8079365079365081,
+          "std": 0.03422466640268985
+        }
+      },
+      "centre_similarity_most_similar_first": [
+        {
+          "pair": "mouse_or_vole / shrew",
+          "cosine": 0.9904452348622755
+        },
+        {
+          "pair": "lizard / salamander",
+          "cosine": 0.9792274369933173
+        },
+        {
+          "pair": "frog_or_toad / lizard",
+          "cosine": 0.9788268131571219
+        },
+        {
+          "pair": "frog_or_toad / salamander",
+          "cosine": 0.9535691422123321
+        },
+        {
+          "pair": "ground_beetle / mosquito",
+          "cosine": 0.8614483199327035
+        },
+        {
+          "pair": "mouse_or_vole / salamander",
+          "cosine": 0.8412191127777466
+        },
+        {
+          "pair": "salamander / shrew",
+          "cosine": 0.8400600057571852
+        },
+        {
+          "pair": "lizard / mouse_or_vole",
+          "cosine": 0.8277225791622587
+        },
+        {
+          "pair": "lizard / shrew",
+          "cosine": 0.8247503571192731
+        },
+        {
+          "pair": "frog_or_toad / mouse_or_vole",
+          "cosine": 0.8225425042317313
+        },
+        {
+          "pair": "frog_or_toad / shrew",
+          "cosine": 0.8197140661965292
+        },
+        {
+          "pair": "lizard / mosquito",
+          "cosine": 0.786218685730274
+        },
+        {
+          "pair": "frog_or_toad / mosquito",
+          "cosine": 0.7814895906285771
+        },
+        {
+          "pair": "frog_or_toad / ground_beetle",
+          "cosine": 0.7732008981096755
+        },
+        {
+          "pair": "mosquito / salamander",
+          "cosine": 0.7629130589291346
+        },
+        {
+          "pair": "ground_beetle / lizard",
+          "cosine": 0.7577187398351525
+        },
+        {
+          "pair": "ground_beetle / salamander",
+          "cosine": 0.7569039934822306
+        },
+        {
+          "pair": "mosquito / mouse_or_vole",
+          "cosine": 0.7233454519456928
+        },
+        {
+          "pair": "mosquito / shrew",
+          "cosine": 0.7106747172978679
+        },
+        {
+          "pair": "ground_beetle / shrew",
+          "cosine": 0.709980235481508
+        },
+        {
+          "pair": "ground_beetle / mouse_or_vole",
+          "cosine": 0.705778547944519
+        }
+      ]
+    },
+    "below_class": {
+      "frog_or_toad": {
+        "genera": {
+          "Acris": 10,
+          "Anaxyrus": 22,
+          "Gastrophryne": 5,
+          "Lithobates": 13,
+          "Pseudacris": 15,
+          "Scaphiopus": 7,
+          "Spea": 9
+        },
+        "photos": 81,
+        "photos_in_class": 100,
+        "kmeans_nmi": 0.16216897092728874,
+        "kmeans_nmi_shuffled_genera": 0.14479498624732706,
+        "knn1_macro_accuracy": 0.30988535274249557,
+        "chance_macro_accuracy": 0.14285714285714285
+      },
+      "ground_beetle": {
+        "genera": {
+          "Agonum": 5,
+          "Amara": 8,
+          "Chlaenius": 5,
+          "Harpalus": 8,
+          "Pterostichus": 14
+        },
+        "photos": 40,
+        "photos_in_class": 100,
+        "kmeans_nmi": 0.3135782895397511,
+        "kmeans_nmi_shuffled_genera": 0.14006587013522329,
+        "knn1_macro_accuracy": 0.5928571428571429,
+        "chance_macro_accuracy": 0.2
+      },
+      "lizard": {
+        "genera": {
+          "Ameiva": 6,
+          "Anolis": 8,
+          "Aspidoscelis": 17,
+          "Holbrookia": 10,
+          "Phrynosoma": 7,
+          "Plestiodon": 11,
+          "Sceloporus": 24,
+          "Sphaerodactylus": 5
+        },
+        "photos": 88,
+        "photos_in_class": 100,
+        "kmeans_nmi": 0.33311235256578825,
+        "kmeans_nmi_shuffled_genera": 0.17304294931269,
+        "knn1_macro_accuracy": 0.4473644003055768,
+        "chance_macro_accuracy": 0.125
+      },
+      "mosquito": {
+        "genera": {
+          "Aedes": 58,
+          "Anopheles": 13,
+          "Culex": 16,
+          "Psorophora": 11
+        },
+        "photos": 98,
+        "photos_in_class": 100,
+        "kmeans_nmi": 0.09255160475745787,
+        "kmeans_nmi_shuffled_genera": 0.044165522425249154,
+        "knn1_macro_accuracy": 0.558803803954666,
+        "chance_macro_accuracy": 0.25
+      },
+      "mouse_or_vole": {
+        "genera": {
+          "Chaetodipus": 10,
+          "Dipodomys": 7,
+          "Microtus": 12,
+          "Perognathus": 6,
+          "Peromyscus": 21,
+          "Reithrodontomys": 5,
+          "Zapus": 9
+        },
+        "photos": 70,
+        "photos_in_class": 100,
+        "kmeans_nmi": 0.2860322159900871,
+        "kmeans_nmi_shuffled_genera": 0.15760481459403955,
+        "knn1_macro_accuracy": 0.4404761904761905,
+        "chance_macro_accuracy": 0.14285714285714285
+      },
+      "salamander": {
+        "genera": {
+          "Ambystoma": 19,
+          "Desmognathus": 16,
+          "Ensatina": 9,
+          "Eurycea": 11,
+          "Notophthalmus": 8,
+          "Plethodon": 24
+        },
+        "photos": 87,
+        "photos_in_class": 100,
+        "kmeans_nmi": 0.2570755834295011,
+        "kmeans_nmi_shuffled_genera": 0.10187704874667627,
+        "knn1_macro_accuracy": 0.4844331472620946,
+        "chance_macro_accuracy": 0.16666666666666666
+      },
+      "shrew": {
+        "genera": {
+          "Blarina": 17,
+          "Sorex": 79
+        },
+        "photos": 96,
+        "photos_in_class": 100,
+        "kmeans_nmi": 0.25960896165545977,
+        "kmeans_nmi_shuffled_genera": 0.010792471135107612,
+        "knn1_macro_accuracy": 0.8339538346984363,
+        "chance_macro_accuracy": 0.5
+      }
+    },
+    "photo_setup": {
+      "nmi_class_vs_creator": 0.4448952052090308,
+      "nmi_clusters_vs_creator": 0.4572380116958788,
+      "within_class": {
+        "frog_or_toad / creator": {
+          "photos": 25,
+          "values": 4,
+          "same_as_nearest": 0.76,
+          "chance": 0.27
+        },
+        "lizard / creator": {
+          "photos": 24,
+          "values": 5,
+          "same_as_nearest": 0.625,
+          "chance": 0.2898550724637681
+        },
+        "mouse_or_vole / creator": {
+          "photos": 100,
+          "values": 4,
+          "same_as_nearest": 0.64,
+          "chance": 0.32303030303030306
+        },
+        "salamander / creator": {
+          "photos": 25,
+          "values": 3,
+          "same_as_nearest": 0.72,
+          "chance": 0.4066666666666667
+        },
+        "shrew / creator": {
+          "photos": 99,
+          "values": 7,
+          "same_as_nearest": 0.6565656565656566,
+          "chance": 0.3318903318903319
+        },
+        "mosquito / view": {
+          "photos": 100,
+          "values": 2,
+          "same_as_nearest": 0.97,
+          "chance": 0.8684848484848485
+        }
+      },
+      "within_genus": {
+        "Peromyscus / creator": {
+          "photos": 21,
+          "values": 3,
+          "same_as_nearest": 0.42857142857142855,
+          "chance": 0.319047619047619
+        },
+        "Sorex / creator": {
+          "photos": 78,
+          "values": 5,
+          "same_as_nearest": 0.6666666666666666,
+          "chance": 0.3563103563103563
+        }
+      }
+    },
+    "misfits": [
+      {
+        "path": "images/mouse_or_vole/NEON0D8OA_1.jpg",
+        "class": "mouse_or_vole",
+        "genus": "Mictomys",
+        "neighbours": "shrew"
+      },
+      {
+        "path": "images/frog_or_toad/NEON02C0S_1.jpg",
+        "class": "frog_or_toad",
+        "genus": "Pseudacris",
+        "neighbours": "lizard"
+      },
+      {
+        "path": "images/salamander/NEON06J6K_1.jpg",
+        "class": "salamander",
+        "genus": "Eurycea",
+        "neighbours": "lizard"
+      },
+      {
+        "path": "images/salamander/NEON00XTV_1.jpg",
+        "class": "salamander",
+        "genus": "Batrachoseps",
+        "neighbours": "lizard"
+      },
+      {
+        "path": "images/salamander/NEON02H3B_1.jpg",
+        "class": "salamander",
+        "genus": "Ensatina",
+        "neighbours": "lizard"
+      },
+      {
+        "path": "images/salamander/NEON069S6_1.jpg",
+        "class": "salamander",
+        "genus": "Plethodon",
+        "neighbours": "frog_or_toad"
+      },
+      {
+        "path": "images/lizard/NEON02H42_1.jpg",
+        "class": "lizard",
+        "genus": "Scincella",
+        "neighbours": "salamander"
+      },
+      {
+        "path": "images/lizard/NEON00XQC_1.jpg",
+        "class": "lizard",
+        "genus": "Scincella",
+        "neighbours": "salamander"
+      }
+    ],
+    "zero_shot": "66.1%"
+  }
+}
