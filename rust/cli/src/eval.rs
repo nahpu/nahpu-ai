@@ -9,10 +9,12 @@ use std::time::Instant;
 use anyhow::{bail, Context, Result};
 use serde::Serialize;
 
-use nahpu_embed_burn::{load_clip, ClipModel, BACKEND_NAME};
-use nahpu_embed_core::preprocess::{preprocess_framed, Framing};
+use nahpu_embed_burn::{load_clip, BACKEND_NAME};
+use nahpu_embed_core::preprocess::Framing;
 use nahpu_embed_core::zero_shot::{read_labels_csv, Label, LabelWording, PromptSet, ZeroShotClassifier};
 use nahpu_embed_core::Embedding;
+
+use crate::photos::{embed_all, framing_name, read_manifest, Photo};
 
 pub struct EvalPlan {
     pub model: String,
@@ -22,12 +24,6 @@ pub struct EvalPlan {
     pub framings: Vec<Framing>,
     pub settings: Vec<(PromptSet, LabelWording)>,
     pub limit: Option<usize>,
-}
-
-struct Photo {
-    path: PathBuf,
-    listed_as: String,
-    class: String,
 }
 
 #[derive(Serialize)]
@@ -111,26 +107,6 @@ pub fn run(plan: &EvalPlan) -> Result<()> {
     Ok(())
 }
 
-fn read_manifest(manifest: &Path) -> Result<Vec<Photo>> {
-    let base = manifest.parent().unwrap_or(Path::new("."));
-    let mut reader = csv::Reader::from_path(manifest).with_context(|| format!("could not read {}", manifest.display()))?;
-    let headers = reader.headers()?.clone();
-    let column = |name: &str| headers.iter().position(|h| h == name).with_context(|| format!("manifest has no {name} column"));
-    let (path_column, class_column) = (column("path")?, column("class")?);
-
-    reader
-        .records()
-        .map(|record| {
-            let record = record?;
-            Ok(Photo {
-                path: base.join(&record[path_column]),
-                listed_as: record[path_column].to_string(),
-                class: record[class_column].to_string(),
-            })
-        })
-        .collect()
-}
-
 fn check_every_class_has_a_label(photos: &[Photo], labels: &[Label]) -> Result<()> {
     for photo in photos {
         if !labels.iter().any(|label| label.class == photo.class) {
@@ -138,25 +114,6 @@ fn check_every_class_has_a_label(photos: &[Photo], labels: &[Label]) -> Result<(
         }
     }
     Ok(())
-}
-
-fn embed_all(model: &ClipModel, photos: &[Photo], framing: Framing) -> Result<(Vec<Embedding>, Vec<f64>)> {
-    let config = model.vision.preprocess_config();
-    let mut vectors = Vec::with_capacity(photos.len());
-    let mut milliseconds = Vec::with_capacity(photos.len());
-
-    for (done, photo) in photos.iter().enumerate() {
-        let started = Instant::now();
-        let encoded = std::fs::read(&photo.path).with_context(|| format!("could not read {}", photo.path.display()))?;
-        let pixels = preprocess_framed(&encoded, &config, framing)?;
-        vectors.push(model.vision.embed_pixels(&pixels)?);
-        milliseconds.push(started.elapsed().as_secs_f64() * 1000.0);
-
-        if (done + 1) % 100 == 0 {
-            eprintln!("  {} {}/{}", framing_name(framing), done + 1, photos.len());
-        }
-    }
-    Ok((vectors, milliseconds))
 }
 
 fn score(
@@ -303,13 +260,6 @@ fn percentile(values: &[f64], fraction: f64) -> f64 {
 
 fn percent(fraction: f64) -> String {
     format!("{:.1}%", fraction * 100.0)
-}
-
-pub fn framing_name(framing: Framing) -> &'static str {
-    match framing {
-        Framing::CentreCrop => "centre-crop",
-        Framing::PadToSquare => "pad",
-    }
 }
 
 pub fn wording_name(wording: LabelWording) -> &'static str {

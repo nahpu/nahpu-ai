@@ -231,3 +231,6 @@ target-*/
 
 # Eval predictions are rebuilt by `cli eval`; reports and metrics are committed
 /eval/results/*/predictions/
+
+# Saved embeddings are rebuilt by `cli embed`
+/eval/embeddings/
