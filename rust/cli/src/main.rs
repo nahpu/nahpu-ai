@@ -1,4 +1,6 @@
+mod embed;
 mod eval;
+mod photos;
 
 use std::path::PathBuf;
 use std::time::Instant;
@@ -45,6 +47,18 @@ enum Command {
         /// Only the first N photos, for a quick check.
         #[arg(long)]
         limit: Option<usize>,
+    },
+    /// Save image vectors for a manifest, and the label vectors for one setting, as .npy files.
+    Embed {
+        #[command(flatten)]
+        setup: ClassifierSetup,
+        /// CSV with `path` (relative to the manifest) and `class` columns.
+        #[arg(long)]
+        manifest: PathBuf,
+        #[arg(long)]
+        out: PathBuf,
+        #[arg(long, value_enum, default_value_t = FramingArg::CentreCrop)]
+        framing: FramingArg,
     },
 }
 
@@ -129,6 +143,15 @@ fn main() -> Result<()> {
             };
             eval::run(&eval::EvalPlan { model: setup.model, manifest, labels: setup.labels, out, framings, settings, limit })
         }
+        Some(Command::Embed { setup, manifest, out, framing }) => embed::run(&embed::EmbedPlan {
+            model: setup.model,
+            manifest,
+            labels: setup.labels,
+            out,
+            framing: framing.into(),
+            prompts: setup.prompts.into(),
+            wording: setup.wording.into(),
+        }),
     }
 }
 

@@ -86,6 +86,34 @@ from the repo root.
 Current results: [BioCLIP](eval/results/bioclip/report.md) 86.9%,
 [jina-clip-v1](eval/results/jina-clip-v1/report.md) 66.1%.
 
+### Clustering
+
+This checks how well the image vectors group photos with no text at all. First
+save the vectors at each model's best setting:
+
+```sh
+cd rust && cargo run --release --features metal --bin cli -- embed \
+    --model bioclip --prompts specimen --labels ../eval/neon-labels.csv \
+    --manifest ../data/neon/manifest.csv --out ../eval/embeddings/bioclip
+```
+
+For jina, use `--model jina-clip-v1 --prompts ensemble`. Then, from the repo root:
+
+```sh
+python3 -m venv scripts/analysis/.venv
+scripts/analysis/.venv/bin/pip install -r scripts/analysis/requirements.txt
+scripts/analysis/.venv/bin/python -I scripts/analysis/check_embeddings.py eval/embeddings/bioclip eval/results/bioclip
+scripts/analysis/.venv/bin/python -I scripts/analysis/cluster.py data/neon/manifest.csv \
+    eval/results/clustering eval/embeddings/bioclip eval/embeddings/jina-clip-v1
+```
+
+`check_embeddings.py` scores zero-shot from the saved files. It must match
+`cli eval`, which shows each row belongs to the right photo.
+
+Current results: [clustering report](eval/results/clustering/report.md). With
+one nearest labelled photo, BioCLIP gets 97.9% and jina 85.6%. Both beat
+their zero-shot scores.
+
 ## Crates
 
 | Crate | What |

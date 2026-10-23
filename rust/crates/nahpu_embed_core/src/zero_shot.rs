@@ -133,6 +133,11 @@ impl ZeroShotClassifier {
         &self.classes
     }
 
+    /// One unit-length vector per class, in `classes` order.
+    pub fn class_vectors(&self) -> &[Embedding] {
+        &self.class_vectors
+    }
+
     /// Best class first. Probabilities are a softmax over `logit_scale * cosine`.
     pub fn rank(&self, image: &[f32]) -> Vec<Prediction> {
         let cosines: Vec<f32> = self.class_vectors.iter().map(|class| cosine_similarity(image, class)).collect();
