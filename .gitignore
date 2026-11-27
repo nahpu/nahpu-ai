@@ -232,5 +232,8 @@ target-*/
 # Eval predictions are rebuilt by `cli eval`; reports and metrics are committed
 /eval/results/*/predictions/
 
+# PyTorch runs that a Burn run is compared with, rebuilt by scripts/pe/eval_pytorch.py
+/eval/results/*-pytorch/
+
 # Saved embeddings are rebuilt by `cli embed`
 /eval/embeddings/

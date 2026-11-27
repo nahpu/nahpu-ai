@@ -11,7 +11,7 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 
 use nahpu_embed_burn::{
     load_clip, load_nomic_text, load_nomic_vision, BACKEND_NAME, CLIP_MODEL_NAMES, HAS_BIOCLIP, HAS_JINA, HAS_MINILM,
-    HAS_NOMIC,
+    HAS_NOMIC, PE_CORE_SIZES,
 };
 use nahpu_embed_core::preprocess::Framing;
 use nahpu_embed_core::zero_shot::{read_labels_csv, LabelWording, PromptSet, ZeroShotClassifier};
@@ -194,6 +194,13 @@ fn report_what_is_available() {
     println!("bioclip:       {}", present(HAS_BIOCLIP));
     println!("nomic v1.5:    {}", present(HAS_NOMIC));
     println!("PP-OCRv6:      {}", present(HAS_OCR));
+    for size in &PE_CORE_SIZES {
+        if size.compiled_in {
+            println!("{}: compiled in", size.name);
+        } else {
+            println!("{0}: missing — run scripts/pe/export_onnx.py {0}, then rebuild", size.name);
+        }
+    }
     println!("clip models:   {}", CLIP_MODEL_NAMES.join(", "));
 }
 

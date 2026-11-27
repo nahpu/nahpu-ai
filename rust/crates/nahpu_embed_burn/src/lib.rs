@@ -8,6 +8,7 @@ mod clip;
 mod jina;
 mod minilm;
 mod nomic;
+mod pe;
 
 pub use bioclip::{load_bioclip_text, load_bioclip_vision, BIOCLIP_LOGIT_SCALE};
 pub use clip::{load_clip, ClipModel, CLIP_MODEL_NAMES};
@@ -15,6 +16,7 @@ pub use jina::{load_jina_text, load_jina_vision, JINA_LOGIT_SCALE};
 pub use minilm::load_minilm;
 pub use nahpu_burn_support::BACKEND_NAME;
 pub use nomic::{load_nomic_text, load_nomic_vision, NOMIC_LOGIT_SCALE};
+pub use pe::{PeCoreSize, PE_CORE_SIZES};
 
 // For the model modules; unused when no model is compiled in.
 #[allow(unused_imports)]

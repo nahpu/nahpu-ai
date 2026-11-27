@@ -55,6 +55,18 @@ scripts/bioclip/.venv/bin/pip install -r scripts/bioclip/requirements.txt
 scripts/bioclip/.venv/bin/python -I scripts/bioclip/export_onnx.py
 ```
 
+PE-Core-L is exported the same way and passed as `--model pe-core-l14-336`. The
+export downloads a 2.7 GB checkpoint and writes two ONNX files of about 1.3 GB
+each:
+
+```sh
+python3 -m venv scripts/pe/.venv
+scripts/pe/.venv/bin/pip install -r scripts/pe/requirements.txt
+scripts/pe/.venv/bin/python -I scripts/pe/export_onnx.py
+```
+
+The other four sizes of PE-Core are exported by name (see [PE-Core](#pe-core)).
+
 `--prompts` picks the prompt templates and `--wording` picks common names, taxon
 names or both. Add `--features metal` on a Mac for about 20x faster images.
 
@@ -69,7 +81,7 @@ scripts/neon/.venv/bin/pip install -r scripts/neon/requirements.txt
 scripts/neon/.venv/bin/python -I scripts/neon/fetch_dataset.py
 ```
 
-On Windows, here, for the BioCLIP export above and for the clustering scripts
+On Windows, here, for the BioCLIP and PE-Core exports above and for the scripts
 below, run `python` instead of `python3` and use `.venv/Scripts/` instead of
 `.venv/bin/`.
 
@@ -91,9 +103,11 @@ Nomic v1.5 is scored the same way, with `--model nomic-embed-v1.5`. Nomic
 publishes no logit scale, so the `p` that `classify` prints for it is not
 calibrated. The ranking does not depend on it.
 
-Current results: [BioCLIP](eval/results/bioclip/report.md) 86.9%,
+Current results: [PE-Core-L](eval/results/pe-core-l14-336/report.md) 94.6%,
+[BioCLIP](eval/results/bioclip/report.md) 86.9%,
 [Nomic v1.5](eval/results/nomic-embed-v1.5/report.md) 74.0%,
-[jina-clip-v1](eval/results/jina-clip-v1/report.md) 66.1%.
+[jina-clip-v1](eval/results/jina-clip-v1/report.md) 66.1%. The other sizes of
+PE-Core are [below](#pe-core).
 
 ### Clustering
 
@@ -124,7 +138,8 @@ scripts/analysis/.venv/bin/python -I scripts/analysis/cluster.py data/neon/manif
 
 Current results: [clustering report](eval/results/clustering/report.md). With
 one nearest labelled photo, BioCLIP gets 97.9%, Nomic 90.3% and jina 85.6%.
-All three beat their zero-shot scores.
+All three beat their zero-shot scores. The report also covers the five sizes of
+PE-Core: their folders in `eval/embeddings/` go on the end of the last command.
 
 ### OCR
 
@@ -142,6 +157,66 @@ what was read on each photo and the lines that differ from PaddleOCR's.
 
 Current results: [OCR report](eval/results/pp-ocrv6-small/report.md). The
 character error rate against PaddleOCR is 1.0% to 1.5% on the four photos.
+
+### PE-Core
+
+[PE-Core](https://huggingface.co/timm/PE-Core-L-14-336) is Meta's Perception
+Encoder: general-purpose models with a text and an image tower, in five sizes,
+all Apache-2.0. The names are `pe-core-t16-384`, `pe-core-s16-384`,
+`pe-core-b16-224`, `pe-core-l14-336` and `pe-core-g14-448`. Export a size by
+name, then rebuild:
+
+```sh
+scripts/pe/.venv/bin/python -I scripts/pe/export_onnx.py pe-core-b16-224
+```
+
+Then use the `eval` and `embed` commands above with `--model pe-core-b16-224`.
+For `embed`, the best setting is `--prompts specimen --wording both` for T, S
+and B, `--prompts specimen` for L and the default for G. Use a GPU backend: on
+Vulkan with an RTX 4070, T to L take 60 to 190 ms a photo.
+
+G is exported in half precision. In single precision its image tower is 7.6 GB,
+more than an 8 GB card holds. In half precision it is 3.8 GB and takes about
+540 ms a photo on the same GPU. Layer normalisation stays in single precision,
+because in half precision Burn returns NaN for it.
+
+`scripts/pe/eval_pytorch.py` scores a size in PyTorch, to check a Burn run
+against. It writes the same files as `cli eval --sweep` and `cli embed`. Score
+the size into a folder ending in `-pytorch`, which git ignores, then compare the
+two runs prediction by prediction:
+
+```sh
+scripts/pe/.venv/bin/python -I scripts/pe/eval_pytorch.py pe-core-l14-336 \
+    data/neon/manifest.csv eval/neon-labels.csv \
+    eval/results/pe-core-l14-336-pytorch eval/embeddings/pe-core-l14-336-pytorch
+python3 scripts/pe/compare_with_burn.py eval/results/pe-core-l14-336 \
+    eval/results/pe-core-l14-336-pytorch
+```
+
+For every size the two agree on 97.3% or more of predictions in every setting.
+G runs in half precision in PyTorch too, on a CUDA GPU with 8 GB.
+`pip` installs a CPU build of PyTorch on Windows; for a CUDA one, add
+`--extra-index-url https://download.pytorch.org/whl/cu126 "torch==2.14.1+cu126"`
+to the `pip install` above.
+
+Current results, on the 700 NEON photos with centre-crop. Zero-shot is each
+model's best prompt setting. The other two columns use no text and are from the
+[clustering report](eval/results/clustering/report.md). Genus within a class is
+the mean of the report's seven per-class figures:
+
+| Model | Run in | Checkpoint | Zero-shot | Nearest labelled photo | Genus within a class |
+|---|---|---|---|---|---|
+| [PE-Core-T](eval/results/pe-core-t16-384/report.md) | Burn | 0.28 GB | 71.0% | 92.0% | 59.6% |
+| [PE-Core-S](eval/results/pe-core-s16-384/report.md) | Burn | 0.35 GB | 78.9% | 94.3% | 57.4% |
+| [PE-Core-B](eval/results/pe-core-b16-224/report.md) | Burn | 1.8 GB | 88.7% | 95.4% | 61.1% |
+| [PE-Core-L](eval/results/pe-core-l14-336/report.md) | Burn | 2.7 GB | 94.6% | 99.1% | 70.5% |
+| [PE-Core-G](eval/results/pe-core-g14-448/report.md) | Burn, half precision | 9.7 GB | 97.4% | 99.1% | 71.4% |
+| BioCLIP | Burn | 0.6 GB | 86.9% | 97.9% | 69.4% |
+| Nomic v1.5 | Burn | 0.9 GB | 74.0% | 90.3% | 48.8% |
+| jina-clip-v1 | Burn | 0.9 GB | 66.1% | 85.6% | 52.4% |
+
+L is the smallest size that beats BioCLIP on every column. B has a vision tower
+the size of BioCLIP's and is ahead of it on zero-shot only.
 
 ## Crates
 
@@ -163,6 +238,7 @@ character error rate against PaddleOCR is 1.0% to 1.5% on the four photos.
 | `all-MiniLM-L6-v2` | Text, 384 dimensions. |
 | `jina-clip-v1` | Text and images in one space, 768 dimensions. Zero-shot classification. |
 | `bioclip` | Text and images in one space, 512 dimensions. Exported, not fetched (above). |
+| `pe-core-*` | Text and images in one space, in five sizes of 512 to 1280 dimensions. Exported, not fetched (above). |
 | `nomic-embed-text-v1_5` | Text, 768 dimensions, in the same space as the vision model. |
 | `nomic-embed-vision-v1_5` | Images, 768 dimensions, so a text query finds an image. |
 | `PP-OCRv6_small_det` | Finds the text lines in an image. |

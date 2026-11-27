@@ -7,6 +7,13 @@
 - `bioclip-*-reference.tsv`: written by `scripts/bioclip/export_onnx.py` from
   open_clip in PyTorch. `bioclip-photo-reference.tsv` uses open_clip's own
   preprocessing on the photo file.
+- `pe-core-*-reference.tsv`: written by `scripts/pe/export_onnx.py` from
+  open_clip in PyTorch, one set for each size (`t`, `s`, `b`, `l`, `g`).
+  `pe-core-*-image-reference.tsv` uses the crop in `*.pixels.rgb` centred on a
+  square of grey 128 of the size's own width (224 to 448), so no larger crop is
+  committed. `pe-core-*-photo-reference.tsv` resizes the photo file as
+  `preprocess.rs` does (bicubic, centre crop), not as the model's own config
+  does (bilinear, no crop).
 - `nomic-*-reference.tsv`: written by `scripts/nomic/make_references.py`
   (onnxruntime on the same ONNX files; the photos are resized with Pillow).
 

@@ -12,8 +12,9 @@
 Nothing else. No Python, no system BLAS, no CUDA toolkit, no C++ build of ONNX
 Runtime.
 
-Python is optional: it regenerates test data, exports BioCLIP and fetches the
-NEON test set (see the [README](../README.md)).
+Python is optional: it regenerates test data, exports BioCLIP and PE-Core,
+fetches the NEON test set and runs the clustering analysis (see the
+[README](../README.md)).
 
 ## First build
 

@@ -1,7 +1,18 @@
 use anyhow::{bail, Result};
 use nahpu_embed_core::{ImageEmbedder, TextEmbedder};
 
-pub const CLIP_MODEL_NAMES: [&str; 3] = ["jina-clip-v1", "bioclip", "nomic-embed-v1.5"];
+use crate::PE_CORE_SIZES;
+
+pub const CLIP_MODEL_NAMES: [&str; 8] = [
+    "jina-clip-v1",
+    "bioclip",
+    "nomic-embed-v1.5",
+    "pe-core-t16-384",
+    "pe-core-s16-384",
+    "pe-core-b16-224",
+    "pe-core-l14-336",
+    "pe-core-g14-448",
+];
 
 /// A text and an image tower trained into one shared space.
 pub struct ClipModel {
@@ -31,6 +42,14 @@ pub fn load_clip(name: &str) -> Result<ClipModel> {
             vision: crate::load_nomic_vision()?,
             logit_scale: crate::NOMIC_LOGIT_SCALE,
         }),
-        other => bail!("unknown model {other:?}; known: {}", CLIP_MODEL_NAMES.join(", ")),
+        other => match PE_CORE_SIZES.iter().find(|size| size.name == other) {
+            Some(size) => Ok(ClipModel {
+                name: size.name,
+                text: (size.load_text)()?,
+                vision: (size.load_vision)()?,
+                logit_scale: size.logit_scale,
+            }),
+            None => bail!("unknown model {other:?}; known: {}", CLIP_MODEL_NAMES.join(", ")),
+        },
     }
 }
